@@ -1,7 +1,7 @@
 class Environment {
   // API Configuration
   // Set your backend API base URL (required)
-  static const String apiBaseUrl = 'YOUR_API_BASE_URL';
+  static const String apiBaseUrl = 'http://localhost:8080';
   static const Duration apiTimeoutDuration = Duration(seconds: 30);
 
   // Database: use a PostgreSQL instance managed by your backend.

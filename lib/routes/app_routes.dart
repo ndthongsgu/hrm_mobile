@@ -6,6 +6,8 @@ import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/contract/presentation/screens/contract_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/home_screen.dart';
+import '../features/auth/presentation/screens/change_password_screen.dart';
+import '../features/auth/presentation/screens/forgot_password_screen.dart';
 
 class AppRoutes {
   static const String login = '/login';
@@ -15,6 +17,8 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String contract = '/contract';
   static const String qrScanner = '/qr-scanner';
+  static const String changePassword = '/change-password';
+  static const String forgotPassword = '/forgot-password';
 
   static final Map<String, WidgetBuilder> routes = {
     login: (context) => const LoginScreen(),
@@ -23,6 +27,8 @@ class AppRoutes {
     payroll: (context) => const PayrollScreen(),
     profile: (context) => const ProfileScreen(),
     contract: (context) => const ContractScreen(),
+    changePassword: (context) => const ChangePasswordScreen(),
+    forgotPassword: (context) => const ForgotPasswordScreen(),
   };
 
   static final List<GetPage> getPages = [
@@ -54,6 +60,16 @@ class AppRoutes {
     GetPage(
       name: contract,
       page: () => const ContractScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: changePassword,
+      page: () => const ChangePasswordScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: forgotPassword,
+      page: () => const ForgotPasswordScreen(),
       transition: Transition.rightToLeft,
     ),
   ];

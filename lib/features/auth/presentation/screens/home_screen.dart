@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:hrm_mobile/config/theme.dart';
 import 'package:hrm_mobile/routes/app_routes.dart';
+import '../../auth_provider.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   final List<MenuItem> menuItems = [
     MenuItem(
       title: 'Chấm công',
@@ -38,6 +40,38 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   ];
 
+  void _handleChangePassword() {
+    Get.toNamed(AppRoutes.changePassword);
+  }
+
+  Future<void> _handleLogout() async {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Đăng xuất'),
+        content: const Text('Bạn có chắc muốn đăng xuất?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              try {
+                final authService = ref.read(authServiceProvider);
+                await authService.logout();
+                Get.offNamed(AppRoutes.login);
+              } catch (e) {
+                Get.snackbar('Lỗi', 'Không thể đăng xuất');
+              }
+            },
+            child: const Text('Đăng xuất'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,11 +86,38 @@ class _HomeScreenState extends State<HomeScreen> {
               Get.snackbar('Thông báo', 'Chưa có thông báo mới');
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {
-              Get.snackbar('Cài đặt', 'Tính năng sẽ sớm được bổ sung');
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'change_password') {
+                _handleChangePassword();
+              } else if (value == 'logout') {
+                _handleLogout();
+              }
             },
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'change_password',
+                child: Row(
+                  children: [
+                    Icon(Icons.lock_outlined, size: 20),
+                    SizedBox(width: 12),
+                    Text('Đổi mật khẩu'),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, size: 20, color: Colors.red),
+                    SizedBox(width: 12),
+                    Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+            icon: const Icon(Icons.more_vert_outlined),
           ),
         ],
       ),

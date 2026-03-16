@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import '../../../../config/theme.dart';
+import '../../auth_provider.dart';
+import '../../../auth/presentation/screens/forgot_password_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  late TextEditingController _emailController;
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  late TextEditingController _usernameController;
   late TextEditingController _passwordController;
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -18,22 +21,22 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController();
+    _usernameController = TextEditingController();
     _passwordController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+  Future<void> _handleLogin() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
       Get.snackbar(
         'Lỗi',
-        'Vui lòng nhập email và mật khẩu',
+        'Vui lòng nhập tên đăng nhập và mật khẩu',
         backgroundColor: AppTheme.errorColor,
         colorText: Colors.white,
       );
@@ -42,13 +45,31 @@ class _LoginScreenState extends State<LoginScreen> {
 
     setState(() => _isLoading = true);
 
-    Future.delayed(
-      const Duration(seconds: 2),
-      () {
-        setState(() => _isLoading = false);
+    try {
+      final authService = ref.read(authServiceProvider);
+      await authService.login(
+        _usernameController.text,
+        _passwordController.text,
+      );
+
+      if (mounted) {
         Get.offNamed('/home');
-      },
-    );
+      }
+    } catch (e) {
+      if (mounted) {
+        Get.snackbar(
+          'Lỗi đăng nhập',
+          e.toString().replaceAll('Exception: ', ''),
+          backgroundColor: AppTheme.errorColor,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -98,16 +119,15 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: AppTheme.spacing32),
               Text(
-                'Email',
+                'Tên đăng nhập',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: AppTheme.spacing8),
               TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
+                controller: _usernameController,
                 decoration: InputDecoration(
-                  hintText: 'Nhập email của bạn',
-                  prefixIcon: const Icon(Icons.email_outlined),
+                  hintText: 'Nhập tên đăng nhập',
+                  prefixIcon: const Icon(Icons.person_outlined),
                   border: OutlineInputBorder(
                     borderRadius:
                         BorderRadius.circular(AppTheme.radiusMedium),
@@ -162,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Center(
                 child: TextButton(
                   onPressed: () {
-                    Get.snackbar('Thông báo', 'Tính năng sẽ sớm được bổ sung');
+                    Get.to(() => const ForgotPasswordScreen());
                   },
                   child: const Text('Quên mật khẩu?'),
                 ),
