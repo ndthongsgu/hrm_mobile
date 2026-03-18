@@ -1,7 +1,8 @@
 class Environment {
   // API Configuration
   // Set your backend API base URL (required)
-  static const String apiBaseUrl = 'http://localhost:8080';
+  // static const String apiBaseUrl = 'http://localhost:8080';
+  static const String apiBaseUrl = 'https://unsuccinctly-unadhering-zenaida.ngrok-free.dev';
   static const Duration apiTimeoutDuration = Duration(seconds: 30);
 
   // Database: use a PostgreSQL instance managed by your backend.

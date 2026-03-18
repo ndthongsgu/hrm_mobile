@@ -38,6 +38,7 @@ class AuthService {
       await _storage.write(_tokenKey, loginResponse.accessToken);
       await _storage.write(_userKey, {
         'id': loginResponse.id,
+        'employeeId': loginResponse.employeeId,
         'username': loginResponse.username,
         'email': loginResponse.email,
         'roles': loginResponse.roles,

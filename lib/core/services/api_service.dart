@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:get_storage/get_storage.dart';
 import '../../config/env.dart';
 
 class ApiService {
   late final Dio _dio;
+  final _storage = GetStorage();
 
   ApiService({Dio? dio}) {
     _dio = dio ?? Dio(BaseOptions(
@@ -14,6 +16,19 @@ class ApiService {
         'Content-Type': 'application/json',
       },
     ));
+
+    // Add interceptor to include JWT token
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          final token = _storage.read('auth_token');
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
+          return handler.next(options);
+        },
+      ),
+    );
   }
 
   Future<dynamic> get(String path, {Map<String, dynamic>? queryParameters}) async {

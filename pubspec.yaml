@@ -52,7 +52,6 @@ dependencies:
 
   # Camera & QR Code
   camera: ^0.10.5
-  qr_code_scanner: ^1.0.1
   mobile_scanner: ^3.5.3
 
   # PDF Generation
@@ -61,8 +60,7 @@ dependencies:
 
   # Image & File handling
   image_picker: ^1.0.4
-  flutter_document_picker: ^5.2.3
-  file_picker: ^6.1.1
+  file_picker: ^8.0.0
 
   # Utilities
   intl: ^0.19.0

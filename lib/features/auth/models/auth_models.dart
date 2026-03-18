@@ -19,6 +19,7 @@ class LoginResponse {
   final String accessToken;
   final String? refreshToken;
   final String id;
+  final String employeeId;
   final String username;
   final String email;
   final List<String> roles;
@@ -28,6 +29,7 @@ class LoginResponse {
     required this.accessToken,
     this.refreshToken,
     required this.id,
+    required this.employeeId,
     required this.username,
     required this.email,
     required this.roles,
@@ -39,6 +41,7 @@ class LoginResponse {
       accessToken: json['accessToken'] ?? json['token'] ?? '',
       refreshToken: json['refreshToken'],
       id: json['id'] ?? '',
+      employeeId: json['employeeId'] ?? json['employee_id'] ?? '',
       username: json['username'] ?? '',
       email: json['email'] ?? '',
       roles: List<String>.from(json['roles'] ?? []),
