@@ -49,6 +49,7 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   get_storage: ^2.1.1
+  shared_preferences: ^2.2.0
 
   # Camera & QR Code
   camera: ^0.10.5
@@ -73,6 +74,9 @@ dependencies:
 
   # Connectivity
   connectivity_plus: ^5.0.1
+
+  # Location & GPS
+  geolocator: ^9.0.2
 
 dev_dependencies:
   flutter_test:

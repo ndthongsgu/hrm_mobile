@@ -5,6 +5,11 @@ class Environment {
   static const String apiBaseUrl = 'https://unsuccinctly-unadhering-zenaida.ngrok-free.dev';
   static const Duration apiTimeoutDuration = Duration(seconds: 30);
 
+  // GPS and Location Configuration
+  static const Duration gpsLocationTimeout = Duration(seconds: 15);
+  static const Duration gpsFallbackTimeout = Duration(seconds: 20);
+  static const Duration gpsFallbackDurationLimit = Duration(seconds: 10);
+
   // Database: use a PostgreSQL instance managed by your backend.
   // Supabase is optional as a managed Postgres provider but not required by the app.
   
