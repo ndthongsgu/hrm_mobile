@@ -184,6 +184,33 @@ class AttendanceService {
     }
   }
 
+  /// Get monthly attendance data for an employee
+  Future<Map<String, dynamic>> getMonthlyAttendance(
+    String employeeId,
+    int year,
+    int month,
+  ) async {
+    try {
+      final response = await _dio.get(
+        '/api/daily-attendances/monthly/$employeeId',
+        queryParameters: {
+          'year': year,
+          'month': month,
+        },
+      );
+
+      if (response.statusCode == 200 && response.data['data'] != null) {
+        return response.data['data'] as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to fetch monthly attendance data');
+      }
+    } on DioException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (e) {
+      throw Exception('Lỗi không xác định: $e');
+    }
+  }
+
   /// Perform check-out - records end time for today's attendance
   Future<Map<String, dynamic>> checkOut({
     required String employeeId,

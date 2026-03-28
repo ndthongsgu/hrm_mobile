@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../features/attendance/presentation/screens/attendance_screen.dart';
+import '../features/attendance/presentation/screens/attendance_main_screen.dart';
 import '../features/payroll/presentation/screens/payroll_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
 import '../features/contract/presentation/screens/contract_screen.dart';
@@ -23,7 +23,7 @@ class AppRoutes {
   static final Map<String, WidgetBuilder> routes = {
     login: (context) => const LoginScreen(),
     home: (context) => const HomeScreen(),
-    attendance: (context) => const AttendanceScreen(),
+    attendance: (context) => const AttendanceMainScreen(),
     payroll: (context) => const PayrollScreen(),
     profile: (context) => const ProfileScreen(),
     contract: (context) => const ContractScreen(),
@@ -44,7 +44,7 @@ class AppRoutes {
     ),
     GetPage(
       name: attendance,
-      page: () => const AttendanceScreen(),
+      page: () => const AttendanceMainScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

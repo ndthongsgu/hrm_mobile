@@ -24,13 +24,13 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   String? _successMessage;
-  
+
   // Location checking
   double? _currentLatitude;
   double? _currentLongitude;
   bool _isCheckingLocation = false;
-  double? _calculatedDistance;  // Distance to office in meters
-  
+  double? _calculatedDistance; // Distance to office in meters
+
   // Location and IP info
   String? _currentLocationAddress;
   String? _deviceIP;
@@ -118,7 +118,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
     try {
       // Step 1: Check permission
-      if (_cameraController == null || !_cameraController!.value.isInitialized) {
+      if (_cameraController == null ||
+          !_cameraController!.value.isInitialized) {
         throw Exception('Camera chưa khởi tạo, vui lòng quay lại và thử lại');
       }
 
@@ -137,19 +138,20 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         throw Exception('Cần cấp quyền vị trí để chấm công');
       }
 
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-        timeLimit: Environment.gpsLocationTimeout,
-      ).timeout(
-        Environment.gpsFallbackTimeout,
-        onTimeout: () async {
-          // Fallback to high accuracy if timeout
-          return await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high,
-            timeLimit: Environment.gpsFallbackDurationLimit,
+      final position =
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best,
+            timeLimit: Environment.gpsLocationTimeout,
+          ).timeout(
+            Environment.gpsFallbackTimeout,
+            onTimeout: () async {
+              // Fallback to high accuracy if timeout
+              return await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.high,
+                timeLimit: Environment.gpsFallbackDurationLimit,
+              );
+            },
           );
-        },
-      );
 
       // Step 4: Call API with auto-captured photo and location
       final checkInResponse = await _callCheckInAPI(
@@ -160,7 +162,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
       if (checkInResponse['success']) {
         setState(() {
-          _successMessage = checkInResponse['message'] ?? 'Chấm công thành công';
+          _successMessage =
+              checkInResponse['message'] ?? 'Chấm công thành công';
         });
         Get.snackbar(
           'Thành công',
@@ -168,7 +171,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        
+
         // Reload data immediately
         await Future.delayed(const Duration(milliseconds: 500));
         await _loadShiftData();
@@ -207,18 +210,19 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         throw Exception('Cần cấp quyền vị trí để chấm công');
       }
 
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-        timeLimit: Environment.gpsLocationTimeout,
-      ).timeout(
-        Environment.gpsFallbackTimeout,
-        onTimeout: () async {
-          return await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high,
-            timeLimit: Environment.gpsFallbackDurationLimit,
+      final position =
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best,
+            timeLimit: Environment.gpsLocationTimeout,
+          ).timeout(
+            Environment.gpsFallbackTimeout,
+            onTimeout: () async {
+              return await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.high,
+                timeLimit: Environment.gpsFallbackDurationLimit,
+              );
+            },
           );
-        },
-      );
 
       // Call check-out API
       final checkOutResponse = await _callCheckOutAPI(
@@ -228,7 +232,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
       if (checkOutResponse['success']) {
         setState(() {
-          _successMessage = checkOutResponse['message'] ?? 'Kết thúc chấm công thành công';
+          _successMessage =
+              checkOutResponse['message'] ?? 'Kết thúc chấm công thành công';
         });
         Get.snackbar(
           'Thành công',
@@ -236,13 +241,14 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
-        
+
         // Reload data immediately
         await Future.delayed(const Duration(milliseconds: 500));
         await _loadShiftData();
       } else {
         setState(() {
-          _errorMessage = checkOutResponse['message'] ?? 'Kết thúc chấm công thất bại';
+          _errorMessage =
+              checkOutResponse['message'] ?? 'Kết thúc chấm công thất bại';
         });
       }
     } catch (e) {
@@ -278,19 +284,20 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       }
 
       // Get current position with timeout
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-        timeLimit: Environment.gpsLocationTimeout,
-      ).timeout(
-        Environment.gpsFallbackTimeout,
-        onTimeout: () async {
-          // Fallback to high accuracy if timeout
-          return await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high,
-            timeLimit: Environment.gpsFallbackDurationLimit,
+      final position =
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best,
+            timeLimit: Environment.gpsLocationTimeout,
+          ).timeout(
+            Environment.gpsFallbackTimeout,
+            onTimeout: () async {
+              // Fallback to high accuracy if timeout
+              return await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.high,
+                timeLimit: Environment.gpsFallbackDurationLimit,
+              );
+            },
           );
-        },
-      );
 
       // Get address from coordinates
       final address = LocationUtils.getAddressFromCoordinates(
@@ -311,11 +318,12 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       // Calculate distance to office if employee data is available
       if (_employeeData != null) {
         try {
-          final officeLocation = _employeeData!['officeLocation'] as Map<String, dynamic>?;
+          final officeLocation =
+              _employeeData!['officeLocation'] as Map<String, dynamic>?;
           if (officeLocation != null) {
             final officeLatitude = officeLocation['latitude'] as double?;
             final officeLongitude = officeLocation['longitude'] as double?;
-            
+
             if (officeLatitude != null && officeLongitude != null) {
               setState(() {
                 _calculatedDistance = DistanceUtils.calculateDistance(
@@ -361,11 +369,12 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       // Get employee ID from auth context via Riverpod
       final authService = ref.watch(authServiceProvider);
       final userData = authService.getUserData();
-      
+
       if (userData == null || userData['employeeId'] == null) {
         return {
           'success': false,
-          'message': 'Không thể lấy thông tin nhân viên. Vui lòng đăng nhập lại.',
+          'message':
+              'Không thể lấy thông tin nhân viên. Vui lòng đăng nhập lại.',
         };
       }
 
@@ -382,19 +391,16 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       return response;
     } catch (e) {
       String errorMessage = e.toString();
-      
+
       // Ensure error message is in Vietnamese
-      if (!errorMessage.contains('Không thể') && 
+      if (!errorMessage.contains('Không thể') &&
           !errorMessage.contains('Vui lòng') &&
           !errorMessage.contains('Lỗi') &&
           !errorMessage.contains('không')) {
         errorMessage = 'Lỗi: $errorMessage';
       }
-      
-      return {
-        'success': false,
-        'message': errorMessage,
-      };
+
+      return {'success': false, 'message': errorMessage};
     }
   }
 
@@ -406,11 +412,12 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       // Get employee ID from auth context via Riverpod
       final authService = ref.watch(authServiceProvider);
       final userData = authService.getUserData();
-      
+
       if (userData == null || userData['employeeId'] == null) {
         return {
           'success': false,
-          'message': 'Không thể lấy thông tin nhân viên. Vui lòng đăng nhập lại.',
+          'message':
+              'Không thể lấy thông tin nhân viên. Vui lòng đăng nhập lại.',
         };
       }
 
@@ -436,7 +443,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
           };
         }
       }
-      
+
       return {
         'success': true,
         'data': response,
@@ -445,30 +452,29 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     } catch (e) {
       // If exception is thrown, it's an error
       String errorMessage = e.toString();
-      
+
       // Extract meaningful error message from exception
       if (errorMessage.contains('Không tìm thấy bản ghi chấm công')) {
-        errorMessage = 'Không tìm thấy bản ghi chấm công hôm nay. Vui lòng chấm công (check-in) trước.';
+        errorMessage =
+            'Không tìm thấy bản ghi chấm công hôm nay. Vui lòng chấm công (check-in) trước.';
       } else if (errorMessage.contains('đã kết thúc chấm công')) {
         errorMessage = 'Bạn đã kết thúc chấm công rồi.';
-      } else if (!errorMessage.contains('Không thể') && !errorMessage.contains('Vui lòng')) {
+      } else if (!errorMessage.contains('Không thể') &&
+          !errorMessage.contains('Vui lòng')) {
         errorMessage = 'Lỗi: $errorMessage';
       }
-      
-      return {
-        'success': false,
-        'message': errorMessage,
-      };
+
+      return {'success': false, 'message': errorMessage};
     }
   }
 
   /// Format ISO datetime string or datetime value to HH:mm format
   String _formatTime(dynamic timeValue) {
     if (timeValue == null) return '--:--';
-    
+
     try {
       DateTime dateTime;
-      
+
       if (timeValue is String) {
         // Parse ISO datetime string
         dateTime = DateTime.parse(timeValue);
@@ -477,7 +483,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       } else {
         return '--:--';
       }
-      
+
       // Format as HH:mm
       return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } catch (e) {
@@ -495,21 +501,6 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Chấm công'),
-            Text('Theo dõi thời gian và vị trí làm việc', 
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontSize: 12, 
-                fontWeight: FontWeight.normal,
-                color: Colors.white70,
-              )),
-          ],
-        ),
-        elevation: 0,
-      ),
       body: _buildBody(),
     );
   }
@@ -523,7 +514,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
           children: [
             const CircularProgressIndicator(),
             const SizedBox(height: 16),
-            Text('Đang tải dữ liệu...', style: TextStyle(color: Colors.grey[600])),
+            Text(
+              'Đang tải dữ liệu...',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
           ],
         ),
       );
@@ -558,10 +552,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
     return SingleChildScrollView(
       child: Column(
-        children: [
-          _buildWorkTimeSection(),
-          _buildLocationInfoSection(),
-        ],
+        children: [_buildWorkTimeSection(), _buildLocationInfoSection()],
       ),
     );
   }
@@ -571,7 +562,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     final shiftData = _shiftData!;
 
     // Extract values
-    final officeLocation = employeeData['officeLocation'] as Map<String, dynamic>?;
+    final officeLocation =
+        employeeData['officeLocation'] as Map<String, dynamic>?;
     final officeAddress = officeLocation?['address'] ?? 'Chưa có địa điểm';
     final requiredDistance = officeLocation?['radius'] ?? 500;
 
@@ -613,7 +605,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
           const SizedBox(height: 20),
 
           // Ca làm việc
-          _buildDetailRow('Ca làm việc', '$shiftName ($shiftStartTime - $shiftEndTime)'),
+          _buildDetailRow(
+            'Ca làm việc',
+            '$shiftName ($shiftStartTime - $shiftEndTime)',
+          ),
           const SizedBox(height: 16),
 
           // Địa điểm
@@ -632,20 +627,29 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Khoảng cách hiện tại', 
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w500)),
+                    Text(
+                      'Khoảng cách hiện tại',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.teal[50],
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: Colors.teal[100]!),
                       ),
                       child: Text(
-                        _calculatedDistance != null 
-                          ? '${_calculatedDistance!.toStringAsFixed(0)} m'
-                          : 'N/A',
+                        _calculatedDistance != null
+                            ? '${_calculatedDistance!.toStringAsFixed(0)} m'
+                            : 'N/A',
                         style: const TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -661,11 +665,20 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Khoảng cách yêu cầu',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 12, fontWeight: FontWeight.w500)),
+                    Text(
+                      'Khoảng cách yêu cầu',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
                         borderRadius: BorderRadius.circular(8),
@@ -685,13 +698,26 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               const SizedBox(width: 12),
               ElevatedButton.icon(
                 onPressed: _isCheckingLocation ? null : _checkCurrentLocation,
-                icon: Icon(_isCheckingLocation ? Icons.hourglass_bottom : Icons.location_on, size: 16),
-                label: Text(_isCheckingLocation ? 'Cập nhật...' : 'Cập nhật', style: const TextStyle(fontSize: 11)),
+                icon: Icon(
+                  _isCheckingLocation
+                      ? Icons.hourglass_bottom
+                      : Icons.location_on,
+                  size: 16,
+                ),
+                label: Text(
+                  _isCheckingLocation ? 'Cập nhật...' : 'Cập nhật',
+                  style: const TextStyle(fontSize: 11),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.teal,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                 ),
               ),
             ],
@@ -710,7 +736,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               borderRadius: BorderRadius.circular(12),
               color: Colors.grey[100],
             ),
-            child: _cameraController != null &&
+            child:
+                _cameraController != null &&
                     _cameraController!.value.isInitialized
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(12),
@@ -728,7 +755,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                         const SizedBox(height: 12),
                         Text(
                           'Đang khởi tạo camera...',
-                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -756,7 +786,11 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   Expanded(
                     child: Text(
                       _errorMessage!,
-                      style: TextStyle(color: Colors.red[700], fontSize: 12, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: Colors.red[700],
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -775,12 +809,20 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle_outline, color: Colors.green[700], size: 20),
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green[700],
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       _successMessage!,
-                      style: TextStyle(color: Colors.green[700], fontSize: 12, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        color: Colors.green[700],
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ],
@@ -824,14 +866,24 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                       children: [
                         Icon(Icons.login, color: Colors.blue[700], size: 16),
                         const SizedBox(width: 6),
-                        Text('Giờ vào',
-                            style: TextStyle(color: Colors.blue[700], fontSize: 11, fontWeight: FontWeight.w600)),
+                        Text(
+                          'Giờ vào',
+                          style: TextStyle(
+                            color: Colors.blue[700],
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Text(
                       _formatTime(checkInTime),
-                      style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w700, color: Colors.blue),
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.blue,
+                      ),
                     ),
                     const SizedBox(height: 14),
                     if (checkInTime == null)
@@ -843,10 +895,29 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                             backgroundColor: Colors.blue,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             elevation: 2,
                           ),
-                          child: const Text('Check In', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text(
+                                  'Check In',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
                       ),
                   ],
@@ -880,14 +951,24 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                       children: [
                         Icon(Icons.logout, color: Colors.orange[700], size: 16),
                         const SizedBox(width: 6),
-                        Text('Giờ ra',
-                            style: TextStyle(color: Colors.orange[700], fontSize: 11, fontWeight: FontWeight.w600)),
+                        Text(
+                          'Giờ ra',
+                          style: TextStyle(
+                            color: Colors.orange[700],
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     Text(
                       _formatTime(checkOutTime),
-                      style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w700, color: Colors.orange),
+                      style: const TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.orange,
+                      ),
                     ),
                     const SizedBox(height: 14),
                     if (checkInTime != null && checkOutTime == null)
@@ -899,10 +980,29 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                             backgroundColor: Colors.orange,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             elevation: 2,
                           ),
-                          child: const Text('Check Out', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Text(
+                                  'Check Out',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                         ),
                       ),
                   ],
@@ -954,22 +1054,20 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
           // Coordinates
           if (_currentLatitude != null && _currentLongitude != null) ...[
-            _buildDetailRow(
-              'Kinh độ',
-              _currentLatitude!.toStringAsFixed(6),
-            ),
+            _buildDetailRow('Kinh độ', _currentLatitude!.toStringAsFixed(6)),
             const SizedBox(height: 16),
-            _buildDetailRow(
-              'Vĩ độ',
-              _currentLongitude!.toStringAsFixed(6),
-            ),
+            _buildDetailRow('Vĩ độ', _currentLongitude!.toStringAsFixed(6)),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String? value, {bool isMultiLine = false}) {
+  Widget _buildDetailRow(
+    String label,
+    String? value, {
+    bool isMultiLine = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1005,14 +1103,15 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String? value, {bool isMultiLine = false}) {
+  Widget _buildInfoRow(
+    String label,
+    String? value, {
+    bool isMultiLine = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(color: Colors.grey[600], fontSize: 12),
-        ),
+        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
         const SizedBox(height: 4),
         Text(
           value ?? 'N/A',
