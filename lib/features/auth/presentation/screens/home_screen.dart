@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:hrm_mobile/config/theme.dart';
 import 'package:hrm_mobile/routes/app_routes.dart';
+import '../../models/auth_models.dart';
 import '../../auth_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -13,6 +14,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  UserProfile? _profile;
+
   final List<MenuItem> menuItems = [
     MenuItem(
       title: 'Chấm công',
@@ -42,6 +45,41 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   void _handleChangePassword() {
     Get.toNamed(AppRoutes.changePassword);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMyProfile();
+  }
+
+  Future<void> _loadMyProfile() async {
+    try {
+      final profile = await ref.read(authServiceProvider).getMyProfile();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _profile = profile;
+      });
+    } catch (_) {
+      // Keep fallback name from local storage below when API is unavailable.
+    }
+  }
+
+  String _resolveGreetingName() {
+    final fromApi = _profile?.displayName.trim() ?? '';
+    if (fromApi.isNotEmpty) {
+      return fromApi;
+    }
+
+    final userData = ref.read(authServiceProvider).getUserData() ?? {};
+    final localName = (userData['name'] ?? '').toString().trim();
+    if (localName.isNotEmpty) {
+      return localName;
+    }
+
+    return 'Nhân viên';
   }
 
   Future<void> _handleLogout() async {
@@ -74,6 +112,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayName = _resolveGreetingName();
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
@@ -160,7 +200,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Nguyễn Văn A',
+                              displayName,
                               style: Theme.of(context)
                                   .textTheme
                                   .titleMedium

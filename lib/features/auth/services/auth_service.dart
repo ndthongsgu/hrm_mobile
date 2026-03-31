@@ -91,6 +91,30 @@ class AuthService {
     }
   }
 
+  Future<UserProfile> getMyProfile() async {
+    try {
+      final response = await apiService.get('/api/auth/me');
+      final data = _extractResponseData(response);
+      final profile = UserProfile.fromJson(data);
+
+      await _storage.write(_userKey, profile.toStorageJson());
+      return profile;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<UserProfile> updateMyProfile(UpdateMyProfileRequest request) async {
+    try {
+      await apiService.put('/api/auth/me', data: request.toJson());
+
+      // Reload profile after update so local state stays in sync if username changes.
+      return getMyProfile();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   Future<void> logout() async {
     try {
       await apiService.post('/api/auth/logout');
@@ -109,5 +133,18 @@ class AuthService {
 
   Map<String, dynamic>? getUserData() {
     return _storage.read(_userKey);
+  }
+
+  Map<String, dynamic> _extractResponseData(dynamic response) {
+    if (response is! Map<String, dynamic>) {
+      throw Exception('Invalid response format');
+    }
+
+    final data = response['data'];
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+
+    return response;
   }
 }

@@ -95,3 +95,185 @@ class ForgotPasswordResponse {
     );
   }
 }
+
+class UserProfile {
+  final String userId;
+  final String username;
+  final String email;
+  final String name;
+  final bool isAdmin;
+  final bool isGoogle;
+  final UserEmployeeProfile? employee;
+  final Map<String, List<String>> permissions;
+
+  UserProfile({
+    required this.userId,
+    required this.username,
+    required this.email,
+    required this.name,
+    required this.isAdmin,
+    required this.isGoogle,
+    this.employee,
+    required this.permissions,
+  });
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    final rawPermissions = json['permissions'];
+    final parsedPermissions = <String, List<String>>{};
+
+    if (rawPermissions is Map) {
+      rawPermissions.forEach((key, value) {
+        final permissionKey = key.toString();
+        if (value is List) {
+          parsedPermissions[permissionKey] =
+              value.map((item) => item.toString()).toList();
+        } else {
+          parsedPermissions[permissionKey] = [];
+        }
+      });
+    }
+
+    return UserProfile(
+      userId: (json['userId'] ?? json['id'] ?? '').toString(),
+      username: (json['username'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      name: (json['name'] ?? json['fullName'] ?? '').toString(),
+      isAdmin: json['isAdmin'] == true,
+      isGoogle: json['isGoogle'] == true,
+      employee: json['employee'] is Map<String, dynamic>
+          ? UserEmployeeProfile.fromJson(json['employee'] as Map<String, dynamic>)
+          : null,
+      permissions: parsedPermissions,
+    );
+  }
+
+  String get displayName {
+    final employeeName = employee?.fullName.trim() ?? '';
+    if (employeeName.isNotEmpty) {
+      return employeeName;
+    }
+    final topLevelName = name.trim();
+    if (topLevelName.isNotEmpty) {
+      return topLevelName;
+    }
+    return username;
+  }
+
+  String get displayEmail {
+    final employeeEmail = employee?.email.trim() ?? '';
+    if (employeeEmail.isNotEmpty) {
+      return employeeEmail;
+    }
+    return email;
+  }
+
+  String? get displayPhone {
+    final phone = employee?.phone?.trim();
+    if (phone == null || phone.isEmpty) {
+      return null;
+    }
+    return phone;
+  }
+
+  String? get displayAddress {
+    final address = employee?.address?.trim();
+    if (address == null || address.isEmpty) {
+      return null;
+    }
+    return address;
+  }
+
+  Map<String, dynamic> toStorageJson() {
+    return {
+      'id': userId,
+      'username': username,
+      'email': email,
+      'name': name,
+      'isAdmin': isAdmin,
+      'employee': employee?.toJson(),
+      'permissions': permissions,
+    };
+  }
+}
+
+class UserEmployeeProfile {
+  final String id;
+  final String employeeCode;
+  final String fullName;
+  final String email;
+  final String? phone;
+  final String? address;
+  final String? status;
+
+  UserEmployeeProfile({
+    required this.id,
+    required this.employeeCode,
+    required this.fullName,
+    required this.email,
+    this.phone,
+    this.address,
+    this.status,
+  });
+
+  factory UserEmployeeProfile.fromJson(Map<String, dynamic> json) {
+    return UserEmployeeProfile(
+      id: (json['id'] ?? '').toString(),
+      employeeCode: (json['employeeCode'] ?? '').toString(),
+      fullName: (json['fullName'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      phone: json['phone']?.toString(),
+      address: json['address']?.toString(),
+      status: json['status']?.toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'employeeCode': employeeCode,
+      'fullName': fullName,
+      'email': email,
+      'phone': phone,
+      'address': address,
+      'status': status,
+    };
+  }
+}
+
+class UpdateMyProfileRequest {
+  final String? username;
+  final String? fullName;
+  final String? email;
+  final String? phone;
+  final String? address;
+
+  UpdateMyProfileRequest({
+    this.username,
+    this.fullName,
+    this.email,
+    this.phone,
+    this.address,
+  });
+
+  Map<String, dynamic> toJson() {
+    final payload = <String, dynamic>{};
+
+    if (username != null) {
+      payload['username'] = username;
+    }
+    if (fullName != null) {
+      payload['fullName'] = fullName;
+    }
+    if (email != null) {
+      payload['email'] = email;
+    }
+    if (phone != null) {
+      payload['phone'] = phone;
+    }
+    if (address != null) {
+      payload['address'] = address;
+    }
+
+    return payload;
+  }
+}
