@@ -60,7 +60,7 @@ class AuthService {
   ) async {
     try {
       final request = ChangePasswordRequest(
-        currentPassword: currentPassword,
+        oldPassword: currentPassword,
         newPassword: newPassword,
       );
 

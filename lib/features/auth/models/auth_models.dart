@@ -51,17 +51,17 @@ class LoginResponse {
 }
 
 class ChangePasswordRequest {
-  final String currentPassword;
+  final String oldPassword;
   final String newPassword;
 
   ChangePasswordRequest({
-    required this.currentPassword,
+    required this.oldPassword,
     required this.newPassword,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'currentPassword': currentPassword,
+      'oldPassword': oldPassword,
       'newPassword': newPassword,
     };
   }
