@@ -234,9 +234,12 @@ class AttendanceService {
       if (response.statusCode == 200) {
         // Extract success from the actual API response (inside 'data' field)
         final apiResponse = response.data['data'] as Map<String, dynamic>? ?? {};
+        final bool isSuccess = (apiResponse['success'] as bool?) ?? true;
+        final String message = apiResponse['message'] as String? ?? response.data['message'] as String? ?? 'Kết thúc chấm công';
+
         return {
-          'success': apiResponse['success'] ?? false,  // Get actual success field from API response
-          'message': apiResponse['message'] ?? response.data['message'] ?? 'Kết thúc chấm công',
+          'success': isSuccess,
+          'message': message,
           'data': apiResponse,  // Return full API response
         };
       } else {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:hrm_mobile/config/theme.dart';
+import 'package:hrm_mobile/features/auth/auth_provider.dart';
 import '../../payroll_provider.dart';
 
 class PayrollScreen extends ConsumerStatefulWidget {
@@ -13,6 +14,26 @@ class PayrollScreen extends ConsumerStatefulWidget {
 
 class _PayrollScreenState extends ConsumerState<PayrollScreen> {
   String? _selectedPeriodId;
+  bool _hasInvalidated = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Invalidate providers when screen is first opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_hasInvalidated) {
+        _invalidateProviders();
+        _hasInvalidated = true;
+      }
+    });
+  }
+
+  void _invalidateProviders() {
+    // Invalidate cached data to force fresh API calls
+    ref.invalidate(payrollPeriodsProvider);
+    // Invalidate all payslip providers
+    ref.invalidate(payslipProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +71,14 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                         .toList(),
                     onChanged: (value) {
                       setState(() => _selectedPeriodId = value);
+                      // Invalidate payslip when period changes
+                      if (value != null) {
+                        final user = ref.read(userProvider);
+                        final employeeId = user?.employee?.id?.trim();
+                        if (employeeId != null && employeeId.isNotEmpty) {
+                          ref.invalidate(payslipProvider((employeeId: employeeId, payrollPeriodId: value)));
+                        }
+                      }
                     },
                   );
                 },
@@ -76,9 +105,8 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                   ) ?? (periods.isNotEmpty ? periods.first : null);
                   
                   // Get employee ID from auth service via Riverpod
-                  final authService = ref.watch(authServiceProvider);
-                  final userData = authService.getUserData();
-                  final employeeId = (userData?['employeeId'] as String?)?.trim();
+                  final user = ref.watch(userProvider);
+                  final employeeId = user?.employee?.id?.trim();
                   
                   if (employeeId == null || employeeId.isEmpty || selectedPeriod == null) {
                     return Card(
@@ -94,7 +122,7 @@ class _PayrollScreenState extends ConsumerState<PayrollScreen> {
                     );
                   }
                   
-                  // Fetch payslip data
+                  // Fetch payslip data - refresh each time to avoid caching
                   final payslipAsync = ref.watch(payslipProvider(
                     (employeeId: employeeId, payrollPeriodId: selectedPeriod.id),
                   ));

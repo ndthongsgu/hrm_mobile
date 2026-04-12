@@ -8,6 +8,7 @@ import 'package:hrm_mobile/config/theme.dart';
 import 'package:hrm_mobile/config/env.dart';
 import 'package:hrm_mobile/features/attendance/data/services/attendance_service.dart';
 import 'package:hrm_mobile/features/auth/auth_provider.dart';
+import 'package:hrm_mobile/features/auth/models/auth_models.dart';
 import 'package:hrm_mobile/utils/distance_utils.dart';
 import 'package:hrm_mobile/utils/location_utils.dart';
 
@@ -52,14 +53,19 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     setState(() => _isLoadingShiftData = true);
 
     try {
-      final authService = ref.read(authServiceProvider);
-      final userData = authService.getUserData();
+      UserProfile? user = ref.read(userProvider);
 
-      if (userData == null || userData['employeeId'] == null) {
+      if (user == null) {
+        // Try to load user profile if not available
+        await ref.read(userProvider.notifier).loadUserProfile();
+        user = ref.read(userProvider);
+      }
+
+      if (user == null || user.employee?.id == null) {
         throw Exception('Không thể lấy thông tin nhân viên');
       }
 
-      final employeeId = userData['employeeId'];
+      final employeeId = user.employee!.id;
       final service = AttendanceService();
 
       // Call API directly - no cache
@@ -367,10 +373,9 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   }) async {
     try {
       // Get employee ID from auth context via Riverpod
-      final authService = ref.watch(authServiceProvider);
-      final userData = authService.getUserData();
+      final user = ref.read(userProvider);
 
-      if (userData == null || userData['employeeId'] == null) {
+      if (user == null || user.employee?.id == null) {
         return {
           'success': false,
           'message':
@@ -378,7 +383,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         };
       }
 
-      final String employeeId = userData['employeeId'];
+      final String employeeId = user.employee!.id;
 
       final response = await AttendanceService().checkIn(
         employeeId: employeeId,
@@ -410,10 +415,9 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   }) async {
     try {
       // Get employee ID from auth context via Riverpod
-      final authService = ref.watch(authServiceProvider);
-      final userData = authService.getUserData();
+      final user = ref.read(userProvider);
 
-      if (userData == null || userData['employeeId'] == null) {
+      if (user == null || user.employee?.id == null) {
         return {
           'success': false,
           'message':
@@ -421,7 +425,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         };
       }
 
-      final String employeeId = userData['employeeId'];
+      final String employeeId = user.employee!.id;
 
       final response = await AttendanceService().checkOut(
         employeeId: employeeId,

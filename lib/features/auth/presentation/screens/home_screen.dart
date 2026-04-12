@@ -73,8 +73,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return fromApi;
     }
 
-    final userData = ref.read(authServiceProvider).getUserData() ?? {};
-    final localName = (userData['name'] ?? '').toString().trim();
+    final user = ref.read(userProvider);
+    final localName = user?.name.trim() ?? '';
     if (localName.isNotEmpty) {
       return localName;
     }

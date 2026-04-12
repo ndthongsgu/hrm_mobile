@@ -186,6 +186,7 @@ class UserProfile {
   Map<String, dynamic> toStorageJson() {
     return {
       'id': userId,
+      'employeeId': employee?.id,
       'username': username,
       'email': email,
       'name': name,

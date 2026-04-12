@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:hrm_mobile/config/theme.dart';
 import 'package:hrm_mobile/features/attendance/data/services/attendance_service.dart';
 import 'package:hrm_mobile/features/auth/auth_provider.dart';
+import 'package:hrm_mobile/features/auth/models/auth_models.dart';
 
 class AttendanceBoardScreen extends ConsumerStatefulWidget {
   const AttendanceBoardScreen({super.key});
@@ -30,14 +31,13 @@ class _AttendanceBoardScreenState extends ConsumerState<AttendanceBoardScreen> {
 
     try {
       // Get employee ID from auth service (same pattern as attendance_screen)
-      final authService = ref.read(authServiceProvider);
-      final userData = authService.getUserData();
+      final user = ref.read(userProvider);
       
-      if (userData == null || userData['employeeId'] == null) {
+      if (user == null || user.employee?.id == null) {
         throw Exception('Không tìm thấy ID nhân viên. Vui lòng đăng nhập lại.');
       }
       
-      final employeeId = userData['employeeId'];
+      final employeeId = user.employee!.id;
       
       final data = await _fetchMonthlyAttendance(
         employeeId,

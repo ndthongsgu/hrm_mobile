@@ -14,35 +14,75 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(apiService: apiService);
 });
 
+// Auth State Notifier
+class AuthNotifier extends StateNotifier<bool> {
+  final AuthService _authService;
+
+  AuthNotifier(this._authService) : super(_authService.isAuthenticated);
+
+  void updateAuthState() {
+    state = _authService.isAuthenticated;
+  }
+
+  Future<void> logout() async {
+    await _authService.logout();
+    state = false;
+  }
+}
+
+// User Profile Notifier
+class UserNotifier extends StateNotifier<UserProfile?> {
+  final AuthService _authService;
+
+  UserNotifier(this._authService) : super(null) {
+    loadUserProfile();
+  }
+
+  Future<void> loadUserProfile() async {
+    if (_authService.isAuthenticated) {
+      try {
+        final profile = await _authService.getMyProfile();
+        state = profile;
+      } catch (e) {
+        // Handle error
+        state = null;
+      }
+    } else {
+      state = null;
+    }
+  }
+
+  void updateProfile(UserProfile profile) {
+    state = profile;
+  }
+
+  void clearProfile() {
+    state = null;
+  }
+}
+
+// Auth State Provider
+final authStateProvider = StateNotifierProvider<AuthNotifier, bool>((ref) {
+  final authService = ref.watch(authServiceProvider);
+  return AuthNotifier(authService);
+});
+
+// User Profile Provider
+final userProvider = StateNotifierProvider<UserNotifier, UserProfile?>((ref) {
+  final authService = ref.watch(authServiceProvider);
+  return UserNotifier(authService);
+});
+
 // Login Provider
 final loginProvider = FutureProvider.family<LoginResponse, (String, String)>(
   (ref, params) async {
     final authService = ref.watch(authServiceProvider);
     final (username, password) = params;
-    return authService.login(username, password);
+    final response = await authService.login(username, password);
+    // Update auth state after successful login
+    ref.read(authStateProvider.notifier).updateAuthState();
+    // Load user profile
+    await ref.read(userProvider.notifier).loadUserProfile();
+    return response;
   },
 );
-
-// Change Password Provider
-final changePasswordProvider = FutureProvider.family<void, (String, String)>(
-  (ref, params) async {
-    final authService = ref.watch(authServiceProvider);
-    final (currentPassword, newPassword) = params;
-    return authService.changePassword(currentPassword, newPassword);
-  },
-);
-
-// Forgot Password Provider
-final forgotPasswordProvider =
-    FutureProvider.family<ForgotPasswordResponse, String>(
-  (ref, email) async {
-    final authService = ref.watch(authServiceProvider);
-    return authService.forgotPassword(email);
-  },
-);
-
-// Auth State Provider
-final authStateProvider = StateProvider<bool>((ref) {
-  final authService = ref.watch(authServiceProvider);
-  return authService.isAuthenticated;
-});
